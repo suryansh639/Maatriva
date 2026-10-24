@@ -25,7 +25,7 @@ import { ToastProvider } from './shared/Toasts';
 import { LOGIN_PATH, canAccessArea, homeRouteForRole } from './shared/routes';
 import type { Area } from './shared/routes';
 
-const DoctorArea = lazy(() => import('./doctor/DoctorPlaceholder'));
+const DoctorArea = lazy(() => import('./doctor/DoctorLayout'));
 
 /** Renders `children` only for a usable session whose role may open `area`. */
 function RequireArea({ area, children }: { area: Area; children: ReactNode }) {

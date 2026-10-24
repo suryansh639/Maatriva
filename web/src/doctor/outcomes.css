@@ -1,0 +1,23 @@
+/* Outcomes panel (Req 24.8). Text colours meet 4.5:1 on white. */
+.outcomes__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+.outcomes__list dt {
+  font-weight: 700;
+}
+.outcomes__list dd {
+  margin: 0.25rem 0 0;
+  font-size: 1.5rem;
+  font-variant-numeric: tabular-nums;
+}
+.outcomes__unit {
+  font-size: 0.6em;
+  color: #4a4a4a;
+}
+.outcomes__note {
+  margin: 0.75rem 0 0;
+  color: #4a4a4a;
+}
