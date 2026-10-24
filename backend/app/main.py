@@ -21,6 +21,7 @@ from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app import db
@@ -73,16 +74,21 @@ def create_app() -> FastAPI:
 
     application.add_exception_handler(DomainError, domain_error_handler)
     application.add_exception_handler(Exception, internal_error_handler)
-    # RequestValidationError: FastAPI's default 422 handler is kept on purpose.
+    # RequestValidationError: FastAPI's default 422 body is kept; this wrapper only
+    # adds a WARNING (user id, change count) for invalid push envelopes (Req 7.2).
+    from app.routers.sync import push_validation_exception_handler
+
+    application.add_exception_handler(RequestValidationError, push_validation_exception_handler)
 
     @application.get("/api/health", tags=["meta"])
     def health() -> dict:
         return {"status": "ok", "demo": get_settings().demo}
 
     # ---- Router registration (keep every include_router in this block) ----
-    from app.routers import auth
+    from app.routers import auth, sync
 
     application.include_router(auth.router)
+    application.include_router(sync.router)
     # ------------------------------------------------------------------------
 
     return application

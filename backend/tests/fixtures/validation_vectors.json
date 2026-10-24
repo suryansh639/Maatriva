@@ -1,0 +1,1307 @@
+{
+  "_doc": "Shared boundary vectors for sync field validation (Requirement 11). Each vector starts from base[model], applies patch (null means the field is sent as null), drops the keys in remove, and validates with server time `now`. valid tells whether the model must accept it. expect lists normalized output values (datetimes as ISO-8601 UTC with Z, compared as instants; dates as YYYY-MM-DD); absent lists input keys the model must drop. Copied to web/src/field/validation.vectors.json for the client validator.",
+  "now": "2025-05-02T06:30:00Z",
+  "today_ist": "2025-05-02",
+  "base": {
+    "mother": {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "full_name": "Sunita Demo (synthetic)",
+      "age": 24,
+      "guardian_name": "Ramesh Demo",
+      "village_id": "11111111-1111-4111-8111-111111111111",
+      "phone": null,
+      "lmp_date": "2025-01-10",
+      "is_bpl": true,
+      "height_cm": 152.0,
+      "first_weight_kg": 48.5,
+      "registered_at": "2025-03-01T05:10:00Z",
+      "updated_at": "2025-03-01T05:10:00Z"
+    },
+    "visit": {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "mother_id": "00000000-0000-4000-8000-000000000001",
+      "visit_date": "2025-05-02",
+      "weight_kg": 56.6,
+      "weight_source": "simulated",
+      "ble_raw_hex": "06382ce907010f0a1e0001",
+      "hb_gdl": 6.8,
+      "hb_source": "manual",
+      "bp_systolic": 118,
+      "bp_diastolic": 76,
+      "bp_source": "manual",
+      "ifa_tablets": 30,
+      "calcium_tablets": 60,
+      "thr_received": true,
+      "notes": "",
+      "client_created_at": "2025-05-02T06:00:00Z"
+    },
+    "task": {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "done_at": "2025-05-02T06:00:00Z",
+      "done_note": "Visited, IFA given"
+    }
+  },
+  "vectors": [
+    {
+      "model": "mother",
+      "name": "base record",
+      "valid": true,
+      "patch": {}
+    },
+    {
+      "model": "mother",
+      "name": "uppercase id normalized",
+      "valid": true,
+      "patch": {
+        "id": "00000000-0000-4000-8000-000000000001"
+      },
+      "expect": {
+        "id": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "id not a uuid",
+      "valid": false,
+      "patch": {
+        "id": "not-a-uuid"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "id without hyphens",
+      "valid": false,
+      "patch": {
+        "id": "00000000000040008000000000000001"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "id as integer",
+      "valid": false,
+      "patch": {
+        "id": 12345
+      }
+    },
+    {
+      "model": "mother",
+      "name": "uppercase village_id normalized",
+      "valid": true,
+      "patch": {
+        "village_id": "11111111-1111-4111-8111-111111111111"
+      },
+      "expect": {
+        "village_id": "11111111-1111-4111-8111-111111111111"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "village_id not a uuid",
+      "valid": false,
+      "patch": {
+        "village_id": "dankaur"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "full_name trimmed",
+      "valid": true,
+      "patch": {
+        "full_name": "  Sunita  "
+      },
+      "expect": {
+        "full_name": "Sunita"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "full_name 1 char",
+      "valid": true,
+      "patch": {
+        "full_name": "S"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "full_name 100 chars",
+      "valid": true,
+      "patch": {
+        "full_name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "full_name 100 chars after trim",
+      "valid": true,
+      "patch": {
+        "full_name": " aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "
+      },
+      "expect": {
+        "full_name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "full_name 101 chars",
+      "valid": false,
+      "patch": {
+        "full_name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "full_name empty",
+      "valid": false,
+      "patch": {
+        "full_name": ""
+      }
+    },
+    {
+      "model": "mother",
+      "name": "full_name blank",
+      "valid": false,
+      "patch": {
+        "full_name": "   "
+      }
+    },
+    {
+      "model": "mother",
+      "name": "full_name not a string",
+      "valid": false,
+      "patch": {
+        "full_name": 123
+      }
+    },
+    {
+      "model": "mother",
+      "name": "full_name missing",
+      "valid": false,
+      "patch": {},
+      "remove": [
+        "full_name"
+      ]
+    },
+    {
+      "model": "mother",
+      "name": "guardian_name blank",
+      "valid": false,
+      "patch": {
+        "guardian_name": " "
+      }
+    },
+    {
+      "model": "mother",
+      "name": "guardian_name 101 chars",
+      "valid": false,
+      "patch": {
+        "guardian_name": "ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "age 13",
+      "valid": false,
+      "patch": {
+        "age": 13
+      }
+    },
+    {
+      "model": "mother",
+      "name": "age 14",
+      "valid": true,
+      "patch": {
+        "age": 14
+      }
+    },
+    {
+      "model": "mother",
+      "name": "age 55",
+      "valid": true,
+      "patch": {
+        "age": 55
+      }
+    },
+    {
+      "model": "mother",
+      "name": "age 56",
+      "valid": false,
+      "patch": {
+        "age": 56
+      }
+    },
+    {
+      "model": "mother",
+      "name": "age float",
+      "valid": false,
+      "patch": {
+        "age": 24.0
+      }
+    },
+    {
+      "model": "mother",
+      "name": "age string",
+      "valid": false,
+      "patch": {
+        "age": "24"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "age boolean",
+      "valid": false,
+      "patch": {
+        "age": true
+      }
+    },
+    {
+      "model": "mother",
+      "name": "is_bpl false",
+      "valid": true,
+      "patch": {
+        "is_bpl": false
+      }
+    },
+    {
+      "model": "mother",
+      "name": "is_bpl string",
+      "valid": false,
+      "patch": {
+        "is_bpl": "true"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "is_bpl integer",
+      "valid": false,
+      "patch": {
+        "is_bpl": 1
+      }
+    },
+    {
+      "model": "mother",
+      "name": "is_bpl missing",
+      "valid": false,
+      "patch": {},
+      "remove": [
+        "is_bpl"
+      ]
+    },
+    {
+      "model": "mother",
+      "name": "phone absent",
+      "valid": true,
+      "patch": {},
+      "remove": [
+        "phone"
+      ],
+      "expect": {
+        "phone": null
+      }
+    },
+    {
+      "model": "mother",
+      "name": "phone 9876543210",
+      "valid": true,
+      "patch": {
+        "phone": "9876543210"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "phone 6000000000",
+      "valid": true,
+      "patch": {
+        "phone": "6000000000"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "phone starts with 5",
+      "valid": false,
+      "patch": {
+        "phone": "5999999999"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "phone 9 digits",
+      "valid": false,
+      "patch": {
+        "phone": "987654321"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "phone 11 digits",
+      "valid": false,
+      "patch": {
+        "phone": "98765432100"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "phone with country code",
+      "valid": false,
+      "patch": {
+        "phone": "+919876543210"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "phone Devanagari digits",
+      "valid": false,
+      "patch": {
+        "phone": "९८७६५४३२१०"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "phone number type",
+      "valid": false,
+      "patch": {
+        "phone": 9876543210
+      }
+    },
+    {
+      "model": "mother",
+      "name": "phone blank treated as absent",
+      "valid": true,
+      "patch": {
+        "phone": ""
+      },
+      "expect": {
+        "phone": null
+      }
+    },
+    {
+      "model": "mother",
+      "name": "lmp_date today (IST)",
+      "valid": true,
+      "patch": {
+        "lmp_date": "2025-05-02",
+        "registered_at": "2025-05-02T06:00:00Z"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "lmp_date tomorrow (IST)",
+      "valid": false,
+      "patch": {
+        "lmp_date": "2025-05-03",
+        "registered_at": "2025-05-03T00:00:00Z"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "lmp_date bad format",
+      "valid": false,
+      "patch": {
+        "lmp_date": "10-01-2025"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "lmp_date impossible day",
+      "valid": false,
+      "patch": {
+        "lmp_date": "2025-02-30"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "lmp_date as integer",
+      "valid": false,
+      "patch": {
+        "lmp_date": 20250110
+      }
+    },
+    {
+      "model": "mother",
+      "name": "lmp_date as datetime string",
+      "valid": false,
+      "patch": {
+        "lmp_date": "2025-01-10T00:00:00Z"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "GA at registration 308",
+      "valid": true,
+      "patch": {
+        "lmp_date": "2024-04-27"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "GA at registration 309",
+      "valid": false,
+      "patch": {
+        "lmp_date": "2024-04-26"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "GA at registration 0 (IST date)",
+      "valid": true,
+      "patch": {
+        "lmp_date": "2025-03-01",
+        "registered_at": "2025-02-28T18:30:00Z"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "GA at registration -1 (IST date)",
+      "valid": false,
+      "patch": {
+        "lmp_date": "2025-03-01",
+        "registered_at": "2025-02-28T18:29:59Z"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "height_cm absent",
+      "valid": true,
+      "patch": {
+        "height_cm": null
+      }
+    },
+    {
+      "model": "mother",
+      "name": "height_cm 119.9",
+      "valid": false,
+      "patch": {
+        "height_cm": 119.9
+      }
+    },
+    {
+      "model": "mother",
+      "name": "height_cm 120",
+      "valid": true,
+      "patch": {
+        "height_cm": 120
+      }
+    },
+    {
+      "model": "mother",
+      "name": "height_cm 200",
+      "valid": true,
+      "patch": {
+        "height_cm": 200.0
+      }
+    },
+    {
+      "model": "mother",
+      "name": "height_cm 200.1",
+      "valid": false,
+      "patch": {
+        "height_cm": 200.1
+      }
+    },
+    {
+      "model": "mother",
+      "name": "height_cm string",
+      "valid": false,
+      "patch": {
+        "height_cm": "150"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "first_weight_kg 24.99",
+      "valid": false,
+      "patch": {
+        "first_weight_kg": 24.99
+      }
+    },
+    {
+      "model": "mother",
+      "name": "first_weight_kg 25",
+      "valid": true,
+      "patch": {
+        "first_weight_kg": 25
+      }
+    },
+    {
+      "model": "mother",
+      "name": "first_weight_kg 150",
+      "valid": true,
+      "patch": {
+        "first_weight_kg": 150
+      }
+    },
+    {
+      "model": "mother",
+      "name": "first_weight_kg 150.01",
+      "valid": false,
+      "patch": {
+        "first_weight_kg": 150.01
+      }
+    },
+    {
+      "model": "mother",
+      "name": "first_weight_kg rounded up",
+      "valid": true,
+      "patch": {
+        "first_weight_kg": 48.456
+      },
+      "expect": {
+        "first_weight_kg": 48.46
+      }
+    },
+    {
+      "model": "mother",
+      "name": "first_weight_kg rounded down",
+      "valid": true,
+      "patch": {
+        "first_weight_kg": 48.454
+      },
+      "expect": {
+        "first_weight_kg": 48.45
+      }
+    },
+    {
+      "model": "mother",
+      "name": "first_weight_kg boolean",
+      "valid": false,
+      "patch": {
+        "first_weight_kg": true
+      }
+    },
+    {
+      "model": "mother",
+      "name": "updated_at now + 24h",
+      "valid": true,
+      "patch": {
+        "updated_at": "2025-05-03T06:30:00Z"
+      },
+      "expect": {
+        "updated_at": "2025-05-03T06:30:00Z"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "updated_at now + 24h + 1s",
+      "valid": false,
+      "patch": {
+        "updated_at": "2025-05-03T06:30:01Z"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "updated_at with +05:30 offset",
+      "valid": true,
+      "patch": {
+        "updated_at": "2025-05-03T12:00:00+05:30"
+      },
+      "expect": {
+        "updated_at": "2025-05-03T06:30:00Z"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "updated_at with milliseconds",
+      "valid": true,
+      "patch": {
+        "updated_at": "2025-03-01T05:10:00.123Z"
+      },
+      "expect": {
+        "updated_at": "2025-03-01T05:10:00.123Z"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "updated_at without timezone",
+      "valid": false,
+      "patch": {
+        "updated_at": "2025-03-01T05:10:00"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "updated_at not a datetime",
+      "valid": false,
+      "patch": {
+        "updated_at": "yesterday"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "updated_at as integer",
+      "valid": false,
+      "patch": {
+        "updated_at": 1740805800
+      }
+    },
+    {
+      "model": "mother",
+      "name": "registered_at date only",
+      "valid": false,
+      "patch": {
+        "registered_at": "2025-03-01"
+      }
+    },
+    {
+      "model": "mother",
+      "name": "registered_at missing",
+      "valid": false,
+      "patch": {},
+      "remove": [
+        "registered_at"
+      ]
+    },
+    {
+      "model": "mother",
+      "name": "server-owned fields ignored",
+      "valid": true,
+      "patch": {
+        "risk_level": "RED",
+        "edd_date": "2030-01-01",
+        "asha_id": "11111111-1111-4111-8111-111111111111",
+        "facility_id": "11111111-1111-4111-8111-111111111111",
+        "status": "delivered"
+      },
+      "absent": [
+        "risk_level",
+        "edd_date",
+        "asha_id",
+        "facility_id",
+        "status"
+      ]
+    },
+    {
+      "model": "visit",
+      "name": "base record",
+      "valid": true,
+      "patch": {}
+    },
+    {
+      "model": "visit",
+      "name": "uppercase mother_id normalized",
+      "valid": true,
+      "patch": {
+        "mother_id": "00000000-0000-4000-8000-000000000001"
+      },
+      "expect": {
+        "mother_id": "00000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "mother_id not a uuid",
+      "valid": false,
+      "patch": {
+        "mother_id": "sunita"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "id missing",
+      "valid": false,
+      "patch": {},
+      "remove": [
+        "id"
+      ]
+    },
+    {
+      "model": "visit",
+      "name": "visit_date bad format",
+      "valid": false,
+      "patch": {
+        "visit_date": "02/05/2025"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "visit_date impossible day",
+      "valid": false,
+      "patch": {
+        "visit_date": "2025-02-29"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "visit_date as integer",
+      "valid": false,
+      "patch": {
+        "visit_date": 20250502
+      }
+    },
+    {
+      "model": "visit",
+      "name": "weight_kg 24.99",
+      "valid": false,
+      "patch": {
+        "weight_kg": 24.99
+      }
+    },
+    {
+      "model": "visit",
+      "name": "weight_kg 25",
+      "valid": true,
+      "patch": {
+        "weight_kg": 25
+      }
+    },
+    {
+      "model": "visit",
+      "name": "weight_kg 150",
+      "valid": true,
+      "patch": {
+        "weight_kg": 150.0
+      }
+    },
+    {
+      "model": "visit",
+      "name": "weight_kg 150.01",
+      "valid": false,
+      "patch": {
+        "weight_kg": 150.01
+      }
+    },
+    {
+      "model": "visit",
+      "name": "weight_kg rounded",
+      "valid": true,
+      "patch": {
+        "weight_kg": 56.604
+      },
+      "expect": {
+        "weight_kg": 56.6
+      }
+    },
+    {
+      "model": "visit",
+      "name": "weight_kg string",
+      "valid": false,
+      "patch": {
+        "weight_kg": "56.6"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "weight_kg without weight_source",
+      "valid": false,
+      "patch": {
+        "weight_source": null
+      }
+    },
+    {
+      "model": "visit",
+      "name": "weight_source unknown",
+      "valid": false,
+      "patch": {
+        "weight_source": "scale"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "weight_source manual",
+      "valid": true,
+      "patch": {
+        "weight_source": "manual",
+        "ble_raw_hex": null
+      }
+    },
+    {
+      "model": "visit",
+      "name": "weight_source ble",
+      "valid": true,
+      "patch": {
+        "weight_source": "ble"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "no weight and no source",
+      "valid": true,
+      "patch": {
+        "weight_kg": null,
+        "weight_source": null,
+        "ble_raw_hex": null
+      }
+    },
+    {
+      "model": "visit",
+      "name": "ble_raw_hex spaced uppercase normalized",
+      "valid": true,
+      "patch": {
+        "ble_raw_hex": "06 38 2C"
+      },
+      "expect": {
+        "ble_raw_hex": "06382c"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "ble_raw_hex empty",
+      "valid": true,
+      "patch": {
+        "ble_raw_hex": ""
+      },
+      "expect": {
+        "ble_raw_hex": ""
+      }
+    },
+    {
+      "model": "visit",
+      "name": "ble_raw_hex odd length",
+      "valid": false,
+      "patch": {
+        "ble_raw_hex": "063"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "ble_raw_hex non-hex",
+      "valid": false,
+      "patch": {
+        "ble_raw_hex": "zz"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "ble_raw_hex 40 bytes",
+      "valid": true,
+      "patch": {
+        "ble_raw_hex": "abababababababababababababababababababababababababababababababababababababababab"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "ble_raw_hex 41 bytes",
+      "valid": false,
+      "patch": {
+        "ble_raw_hex": "ababababababababababababababababababababababababababababababababababababababababab"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "hb_gdl 2.9",
+      "valid": false,
+      "patch": {
+        "hb_gdl": 2.9
+      }
+    },
+    {
+      "model": "visit",
+      "name": "hb_gdl 3.0",
+      "valid": true,
+      "patch": {
+        "hb_gdl": 3.0
+      }
+    },
+    {
+      "model": "visit",
+      "name": "hb_gdl 20.0",
+      "valid": true,
+      "patch": {
+        "hb_gdl": 20
+      }
+    },
+    {
+      "model": "visit",
+      "name": "hb_gdl 20.1",
+      "valid": false,
+      "patch": {
+        "hb_gdl": 20.1
+      }
+    },
+    {
+      "model": "visit",
+      "name": "hb_gdl rounded down",
+      "valid": true,
+      "patch": {
+        "hb_gdl": 6.84
+      },
+      "expect": {
+        "hb_gdl": 6.8
+      }
+    },
+    {
+      "model": "visit",
+      "name": "hb_gdl rounded up",
+      "valid": true,
+      "patch": {
+        "hb_gdl": 6.86
+      },
+      "expect": {
+        "hb_gdl": 6.9
+      }
+    },
+    {
+      "model": "visit",
+      "name": "hb_gdl integer",
+      "valid": true,
+      "patch": {
+        "hb_gdl": 7
+      },
+      "expect": {
+        "hb_gdl": 7.0
+      }
+    },
+    {
+      "model": "visit",
+      "name": "hb_gdl without hb_source",
+      "valid": false,
+      "patch": {
+        "hb_source": null
+      }
+    },
+    {
+      "model": "visit",
+      "name": "hb_source device",
+      "valid": true,
+      "patch": {
+        "hb_source": "device"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "hb_source unknown",
+      "valid": false,
+      "patch": {
+        "hb_source": "ble"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "no hb and no source",
+      "valid": true,
+      "patch": {
+        "hb_gdl": null,
+        "hb_source": null
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp both absent",
+      "valid": true,
+      "patch": {
+        "bp_systolic": null,
+        "bp_diastolic": null,
+        "bp_source": null
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp systolic only",
+      "valid": false,
+      "patch": {
+        "bp_diastolic": null
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp diastolic only",
+      "valid": false,
+      "patch": {
+        "bp_systolic": null
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp 60/30",
+      "valid": true,
+      "patch": {
+        "bp_systolic": 60,
+        "bp_diastolic": 30
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp 260/160",
+      "valid": true,
+      "patch": {
+        "bp_systolic": 260,
+        "bp_diastolic": 160
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp systolic 59",
+      "valid": false,
+      "patch": {
+        "bp_systolic": 59,
+        "bp_diastolic": 40
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp systolic 261",
+      "valid": false,
+      "patch": {
+        "bp_systolic": 261
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp diastolic 29",
+      "valid": false,
+      "patch": {
+        "bp_diastolic": 29
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp diastolic 161",
+      "valid": false,
+      "patch": {
+        "bp_systolic": 200,
+        "bp_diastolic": 161
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp systolic equals diastolic",
+      "valid": false,
+      "patch": {
+        "bp_systolic": 120,
+        "bp_diastolic": 120
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp systolic below diastolic",
+      "valid": false,
+      "patch": {
+        "bp_systolic": 119,
+        "bp_diastolic": 120
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp without bp_source",
+      "valid": false,
+      "patch": {
+        "bp_source": null
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp_source unknown",
+      "valid": false,
+      "patch": {
+        "bp_source": "device"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "bp float",
+      "valid": false,
+      "patch": {
+        "bp_systolic": 118.0
+      }
+    },
+    {
+      "model": "visit",
+      "name": "ifa_tablets -1",
+      "valid": false,
+      "patch": {
+        "ifa_tablets": -1
+      }
+    },
+    {
+      "model": "visit",
+      "name": "ifa_tablets 0",
+      "valid": true,
+      "patch": {
+        "ifa_tablets": 0
+      }
+    },
+    {
+      "model": "visit",
+      "name": "ifa_tablets 180",
+      "valid": true,
+      "patch": {
+        "ifa_tablets": 180
+      }
+    },
+    {
+      "model": "visit",
+      "name": "ifa_tablets 181",
+      "valid": false,
+      "patch": {
+        "ifa_tablets": 181
+      }
+    },
+    {
+      "model": "visit",
+      "name": "ifa_tablets float",
+      "valid": false,
+      "patch": {
+        "ifa_tablets": 1.5
+      }
+    },
+    {
+      "model": "visit",
+      "name": "calcium_tablets 181",
+      "valid": false,
+      "patch": {
+        "calcium_tablets": 181
+      }
+    },
+    {
+      "model": "visit",
+      "name": "calcium_tablets absent",
+      "valid": true,
+      "patch": {
+        "calcium_tablets": null
+      }
+    },
+    {
+      "model": "visit",
+      "name": "thr_received string",
+      "valid": false,
+      "patch": {
+        "thr_received": "yes"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "thr_received absent",
+      "valid": true,
+      "patch": {
+        "thr_received": null
+      }
+    },
+    {
+      "model": "visit",
+      "name": "notes 500 chars",
+      "valid": true,
+      "patch": {
+        "notes": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "notes 501 chars",
+      "valid": false,
+      "patch": {
+        "notes": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "notes absent",
+      "valid": true,
+      "patch": {
+        "notes": null
+      }
+    },
+    {
+      "model": "visit",
+      "name": "client_created_at now + 24h",
+      "valid": true,
+      "patch": {
+        "client_created_at": "2025-05-03T06:30:00Z"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "client_created_at now + 24h + 1s",
+      "valid": false,
+      "patch": {
+        "client_created_at": "2025-05-03T06:30:01Z"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "client_created_at without timezone",
+      "valid": false,
+      "patch": {
+        "client_created_at": "2025-05-02T06:00:00"
+      }
+    },
+    {
+      "model": "visit",
+      "name": "server fields ignored",
+      "valid": true,
+      "patch": {
+        "recorded_by_id": "11111111-1111-4111-8111-111111111111",
+        "received_at": "2025-05-02T06:30:00Z"
+      },
+      "absent": [
+        "recorded_by_id",
+        "received_at"
+      ]
+    },
+    {
+      "model": "task",
+      "name": "base record",
+      "valid": true,
+      "patch": {}
+    },
+    {
+      "model": "task",
+      "name": "uppercase id normalized",
+      "valid": true,
+      "patch": {
+        "id": "33333333-3333-4333-8333-333333333333"
+      },
+      "expect": {
+        "id": "33333333-3333-4333-8333-333333333333"
+      }
+    },
+    {
+      "model": "task",
+      "name": "id not a uuid",
+      "valid": false,
+      "patch": {
+        "id": "task-1"
+      }
+    },
+    {
+      "model": "task",
+      "name": "done_at missing",
+      "valid": false,
+      "patch": {},
+      "remove": [
+        "done_at"
+      ]
+    },
+    {
+      "model": "task",
+      "name": "done_at now + 24h",
+      "valid": true,
+      "patch": {
+        "done_at": "2025-05-03T06:30:00Z"
+      }
+    },
+    {
+      "model": "task",
+      "name": "done_at now + 24h + 1s",
+      "valid": false,
+      "patch": {
+        "done_at": "2025-05-03T06:30:01Z"
+      }
+    },
+    {
+      "model": "task",
+      "name": "done_note absent",
+      "valid": true,
+      "patch": {},
+      "remove": [
+        "done_note"
+      ],
+      "expect": {
+        "done_note": null
+      }
+    },
+    {
+      "model": "task",
+      "name": "done_note 300 chars",
+      "valid": true,
+      "patch": {
+        "done_note": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      }
+    },
+    {
+      "model": "task",
+      "name": "done_note 301 chars",
+      "valid": false,
+      "patch": {
+        "done_note": "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+      }
+    }
+  ]
+}
