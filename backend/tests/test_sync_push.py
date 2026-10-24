@@ -406,3 +406,33 @@ def test_push_requires_asha_role(client, world, auth_headers):
     change = mother_change(world.a.villages[0].id)
     assert _push(client, auth_headers(world.a.doctor), change).status_code == 403
     assert _push(client, {}, change).status_code == 401
+
+
+# --------------------------------------------------------------------------- triage after push
+
+
+def test_duplicate_visit_still_reruns_triage(client, world, auth_headers):
+    """Req 7.9: a ``duplicate`` result re-runs triage for that mother.
+
+    The visit is written straight to the DB without triage (as if the first push
+    committed the visit but its triage was lost), so only a rerun on the
+    duplicate push can turn the mother RED. The triage-failure-still-200 case
+    (Req 7.11) lives in ``test_sync_wiring.py``.
+    """
+    fw = world.a
+    mother = fw.mothers_in(fw.villages[0])[0]
+    change = visit_change(mother.id, hb_gdl=6.5)
+    data = change["data"]
+    with db.SessionLocal() as s:
+        seq = db.begin_write(s)
+        s.add(Visit(
+            id=data["id"], mother_id=mother.id, visit_date=today_ist(),
+            weight_kg=55.0, weight_source="manual", hb_gdl=6.5, hb_source="manual",
+            recorded_by_id=fw.asha.id, client_created_at=utcnow(), change_seq=seq,
+        ))
+        s.commit()
+    assert _get(Mother, mother.id).risk_level == "GREEN"
+
+    [r] = _results(_push(client, auth_headers(fw.asha), change))
+    assert r["status"] == "duplicate"
+    assert _get(Mother, mother.id).risk_level == "RED"

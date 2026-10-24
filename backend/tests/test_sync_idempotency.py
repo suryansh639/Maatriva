@@ -295,9 +295,9 @@ def test_push_idempotency(scenario, world, factory) -> None:
     assert task["status"] == "done"
     assert task["done_at"] == expected_task.done_at
     assert task["done_note"] == expected_task.done_note
-    # At most one task_done SMS, written by the first push only (the writer itself
-    # lands with the alert-router wiring; repeats must never add another).
-    assert after_first["task_done_sms"] <= 1
+    # Exactly one task_done SMS, written by the first push only; repeats must
+    # never add another (Req 10.4).
+    assert after_first["task_done_sms"] == 1
 
     # Final state still has exactly one visit and one completion.
     with db.SessionLocal() as s:

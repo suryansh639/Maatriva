@@ -28,7 +28,8 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
-from app import db, sync_service
+from app import db, sync_service, triage_service
+from app import events as events_mod
 from app.deps import CurrentUser, get_current_user, require_roles
 from app.errors import DomainError
 from app.schemas import ChangeResult, PullOut, PushIn, PushOut
@@ -79,16 +80,37 @@ def _finish_push(
 
     Called on success and (best-effort) before the 503 on ``PushDbError``.
 
-    TASK 10.5 hooks in here:
-    - run ``triage_service.apply_triage`` once per id in ``affected_mother_ids``,
-      each wrapped so a failure logs ERROR with the mother id and the response
-      stays 200 (Req 7.9, 7.11);
-    - publish ``events`` (already committed) plus the triage events, after the
-      triage commits (Req 18.6).
-
-    Until then this is a no-op.
+    - Runs ``triage_service.apply_triage`` once per id in ``affected_mother_ids``
+      in a fresh ``db.SessionLocal()`` session (read at call time). A failure is
+      logged at ERROR with the mother id and never fails the request (Req 7.9,
+      7.10, 7.11).
+    - Then publishes ``events`` (their changes are already committed) followed by
+      the triage events (each triage run commits before returning), so nothing
+      is published before its commit (Req 18.6).
     """
-    return None
+    triage_events: List[Event] = []
+    if affected_mother_ids:
+        db._ensure_configured()  # noqa: SLF001 - same lazy config as get_db
+        with db.SessionLocal() as session:
+            for mother_id in affected_mother_ids:
+                try:
+                    outcome = triage_service.apply_triage(session, mother_id, now)
+                except Exception:
+                    log.exception(
+                        "post-push triage failed: user %s mother %s", user.id, mother_id
+                    )
+                    try:
+                        session.rollback()
+                    except Exception:  # keep going with the next mother
+                        log.exception("rollback failed after triage error: mother %s", mother_id)
+                    continue
+                triage_events.extend(outcome.events)
+
+    for facility_id, name, payload in list(events) + triage_events:
+        try:
+            events_mod.broker.publish(facility_id, name, payload)
+        except Exception:  # publishing is best effort; the data is committed
+            log.exception("publish failed: event %s facility %s", name, facility_id)
 
 
 # --------------------------------------------------------------------------- routes

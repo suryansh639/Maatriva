@@ -30,7 +30,7 @@ from __future__ import annotations
 import re
 import uuid
 from datetime import date, datetime, timedelta
-from typing import Annotated, Any, Dict, List, Literal, Optional
+from typing import Annotated, Any, Dict, List, Literal, Optional, Tuple
 
 from pydantic import (
     AfterValidator,
@@ -335,6 +335,99 @@ class TaskCompleteIn(BaseModel):
     done_note: Optional[DoneNoteStr] = None
 
 
+# --------------------------------------------------------------------------- doctor actions
+
+# Action presets (Req 23.1). English labels live in ``notifications.ACTION_LABELS_EN``
+# (used in SMS text); Hindi labels live in the web app's i18n dictionary.
+ACTION_TYPES: Tuple[str, ...] = (
+    "HOME_VISIT_48H",
+    "REFER_PHC",
+    "IFA_PER_PROTOCOL",
+    "REPEAT_HB",
+    "BP_RECHECK",
+    "ENSURE_THR",
+    "DIET_COUNSEL",
+    "OTHER",
+)
+ActionTypeLit = Literal[
+    "HOME_VISIT_48H",
+    "REFER_PHC",
+    "IFA_PER_PROTOCOL",
+    "REPEAT_HB",
+    "BP_RECHECK",
+    "ENSURE_THR",
+    "DIET_COUNSEL",
+    "OTHER",
+]
+INSTRUCTIONS_MAX = 500
+TASK_DUE_MAX_DAYS = 60
+
+InstructionsStr = Annotated[
+    StrictStr, StringConstraints(strip_whitespace=True, max_length=INSTRUCTIONS_MAX)
+]
+
+
+class TaskCreateIn(BaseModel):
+    """``POST /api/mothers/{id}/tasks`` body (Req 23.2–23.5).
+
+    Field rules run here (FastAPI default 422 on failure). The due-date window
+    (today to today + 60, IST) depends on the clock and the alert rules depend on
+    the database, so ``task_service.create_task`` checks those.
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    action_type: ActionTypeLit
+    instructions: Optional[InstructionsStr] = None
+    due_date: IsoDate
+    alert_id: Optional[UuidStr] = None
+
+    @field_validator("instructions")
+    @classmethod
+    def _blank_instructions_to_none(cls, value: Optional[str]) -> Optional[str]:
+        return value or None
+
+    @model_validator(mode="after")
+    def _other_needs_instructions(self) -> "TaskCreateIn":
+        if self.action_type == "OTHER" and not self.instructions:
+            raise _model_error("instructions", "required when action_type is OTHER")
+        return self
+
+
+# --------------------------------------------------------------------------- birth outcomes
+
+BIRTH_WEIGHT_MIN, BIRTH_WEIGHT_MAX = 0.3, 6.0
+DELIVERY_MIN_GA_DAYS = 140  # delivery_date >= lmp + 140 days (Req 24.2)
+
+BirthOutcomeLit = Literal["live_birth", "stillbirth"]
+BirthWeightKg = Annotated[
+    float,
+    Field(strict=True, ge=BIRTH_WEIGHT_MIN, le=BIRTH_WEIGHT_MAX, allow_inf_nan=False),
+]
+
+
+class BirthOutcomeIn(BaseModel):
+    """``POST /api/mothers/{id}/birth-outcome`` body (Req 24.2, 24.3).
+
+    The weight rules run here (FastAPI default 422): 0.3-6.0 kg when present, and
+    required for ``live_birth``. The ``delivery_date`` window (LMP + 140 days to
+    today, IST) depends on the clock and the mother, so
+    ``outcome_service.record`` checks it (422 ``VALIDATION_ERROR``).
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    delivery_date: IsoDate
+    outcome: BirthOutcomeLit
+    birth_weight_kg: Optional[BirthWeightKg] = None
+
+    @model_validator(mode="after")
+    def _live_birth_needs_weight(self) -> "BirthOutcomeIn":
+        if self.outcome == "live_birth" and self.birth_weight_kg is None:
+            raise _model_error("birth_weight_kg", "required when outcome is live_birth")
+        return self
+
+
 # --------------------------------------------------------------------------- envelope
 
 
@@ -515,11 +608,152 @@ class TaskOut(_OutModel):
         )
 
 
+class TaskListOut(TaskOut):
+    """``GET /api/tasks`` row: ``TaskOut`` plus the mother's name and village, so the
+    dashboard can list tasks without one detail request per row."""
+
+    mother_name: Optional[str] = None
+    village_name: Optional[str] = None
+
+    @classmethod
+    def from_model(cls, task: Any, today: date) -> "TaskListOut":  # type: ignore[override]
+        base = dict(TaskOut.from_model(task, today))  # raw field values, not serialized
+        mother = getattr(task, "mother", None)
+        village = getattr(mother, "village", None) if mother is not None else None
+        return cls(
+            **base,
+            mother_name=mother.full_name if mother is not None else None,
+            village_name=village.name if village is not None else None,
+        )
+
+
+class BirthOutcomeOut(_OutModel):
+    id: str
+    mother_id: str
+    delivery_date: date
+    outcome: str
+    birth_weight_kg: Optional[float] = None
+    is_lbw: bool
+    recorded_by_id: str
+    created_at: OutDatetime
+
+
+class OutcomesOut(BaseModel):
+    """``GET /api/outcomes`` facility counts (Req 24.6)."""
+
+    hb_improved_after_action: int
+    mothers_with_action_and_followup_hb: int
+    births_recorded: int
+    lbw_count: int
+    live_births: int
+
+
 class VillageOut(_OutModel):
     id: str
     name: str
     lat: float
     lng: float
+
+
+class FacilityRefOut(BaseModel):
+    id: str
+    name: str
+
+
+class TrimesterCountsOut(BaseModel):
+    t1: int = 0
+    t2: int = 0
+    t3: int = 0
+
+
+class RiskCountsOut(BaseModel):
+    red: int = 0
+    amber: int = 0
+    green: int = 0
+
+
+class CensusVillageOut(BaseModel):
+    """One village row of the census (Req 20.1), with coordinates for the map."""
+
+    id: str
+    name: str
+    lat: float
+    lng: float
+    pregnant: int = 0
+    bpl: int = 0
+    red: int = 0
+    amber: int = 0
+    green: int = 0
+    due_this_month: int = 0
+
+
+class CensusOut(BaseModel):
+    """``GET /api/dashboard/census`` (Req 20.1). Counts cover active mothers only."""
+
+    facility: FacilityRefOut
+    as_of: date
+    total_pregnant: int
+    bpl_count: int
+    by_trimester: TrimesterCountsOut
+    due_this_month: int
+    risk_counts: RiskCountsOut
+    villages: List[CensusVillageOut]
+
+
+class QueueRowOut(BaseModel):
+    """``GET /api/dashboard/queue`` row (Req 21.1). ``open_alert_id`` and
+    ``open_alert_status`` describe the mother's live RED alert, or are null."""
+
+    mother_id: str
+    full_name: str
+    guardian_name: str
+    village_id: str
+    village_name: str
+    is_bpl: bool
+    ga_days: int
+    edd_date: date
+    risk_level: str
+    flags: List[FlagOut] = Field(default_factory=list)
+    last_visit_date: Optional[date] = None
+    open_alert_id: Optional[str] = None
+    open_alert_status: Optional[str] = None
+    open_task_count: int = 0
+    risk_updated_at: Optional[OutDatetime] = None
+
+
+class FlagHistoryOut(_OutModel):
+    """A RiskFlag row, active or resolved, for the patient flag history."""
+
+    id: str
+    code: str
+    severity: str
+    reason: str
+    active: bool
+    source_visit_id: Optional[str] = None
+    first_seen_at: OutDatetime
+    last_evaluated_at: OutDatetime
+    resolved_at: Optional[OutDatetime] = None
+
+
+class UserRefOut(BaseModel):
+    id: str
+    full_name: str
+
+
+class MotherDetailOut(BaseModel):
+    """``GET /api/mothers/{id}`` (Req 22.1). ``alerts`` items are ``AlertOut``
+    dicts from ``alert_router.alert_out`` (RED and AMBER, newest first)."""
+
+    mother: MotherOut
+    village: VillageOut
+    asha: UserRefOut
+    ga_days: int
+    visits: List[VisitOut]
+    flags_active: List[FlagOut]
+    flags_history: List[FlagHistoryOut]
+    tasks: List[TaskOut]
+    alerts: List[Dict[str, Any]]
+    birth_outcome: Optional[BirthOutcomeOut] = None
 
 
 class PullOut(BaseModel):
@@ -549,6 +783,18 @@ __all__ = [
     "MotherIn",
     "VisitIn",
     "TaskCompleteIn",
+    "ACTION_TYPES",
+    "ActionTypeLit",
+    "INSTRUCTIONS_MAX",
+    "TASK_DUE_MAX_DAYS",
+    "TaskCreateIn",
+    "TaskListOut",
+    "BIRTH_WEIGHT_MIN",
+    "BIRTH_WEIGHT_MAX",
+    "DELIVERY_MIN_GA_DAYS",
+    "BirthOutcomeIn",
+    "BirthOutcomeOut",
+    "OutcomesOut",
     "ErrorBody",
     "ChangeIn",
     "PushIn",
@@ -559,5 +805,14 @@ __all__ = [
     "VisitOut",
     "TaskOut",
     "VillageOut",
+    "FacilityRefOut",
+    "TrimesterCountsOut",
+    "RiskCountsOut",
+    "CensusVillageOut",
+    "CensusOut",
+    "QueueRowOut",
+    "FlagHistoryOut",
+    "UserRefOut",
+    "MotherDetailOut",
     "PullOut",
 ]

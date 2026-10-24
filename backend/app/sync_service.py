@@ -19,7 +19,7 @@ lowercase ``data.id`` when it is a UUID, else null (Req 7.4–7.6).
 
 The returned ``affected_mother_ids`` (ordered, unique) are the mothers whose
 change ended ``applied``, ``duplicate`` or ``stale``; the router runs triage once
-per id after the loop (Req 7.9, wired in task 10.5). ``events`` are
+per id after the loop (Req 7.9, ``routers/sync._finish_push``). ``events`` are
 ``(facility_id, event, payload)`` tuples queued by handlers, to be published only
 after their commit.
 
@@ -46,13 +46,14 @@ from sqlalchemy import and_, select
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session, selectinload
 
-from app import db
+from app import alert_router, db, notifications
 from app.deps import CurrentUser, mother_scope_filter
 from app.errors import DomainError
 from app.gestation import edd_naegele
 from app.models import (
     Mother,
     MotherStatus,
+    NotificationKind,
     RiskFlag,
     RiskLevel,
     SyncCounter,
@@ -268,12 +269,35 @@ def on_task_completed(
     s: Session, user: CurrentUser, task: Task, now: datetime
 ) -> List[Event]:
     """Hook run inside the completing transaction, after the task is marked done
-    and before commit. Returns events to publish after commit.
+    and before commit (Req 10.4, 10.5). Returns events to publish after commit.
 
-    Task 10.5 extends this: ``task_done`` SMS to the issuing doctor,
-    ``alert_router.on_task_done`` and the ``task.done`` (+ ``alert.updated``)
-    events. Until then it does nothing."""
-    return []
+    1. Close the linked alert when no other open task links to it
+       (``alert_router.on_task_done``; yields ``alert.updated`` for RED alerts).
+    2. Write a ``task_done`` mock SMS to the issuing doctor.
+    3. Queue ``task.done`` with ``{"task": TaskOut, "mother_name": ...}``.
+    """
+    mother = task.mother
+    facility_id = mother.facility_id
+    alert_events = alert_router.on_task_done(s, task, now)
+
+    issuer = task.issued_by
+    notifications.write(
+        s,
+        NotificationKind.task_done,
+        facility_id,
+        issuer,
+        notifications.task_done_body(task.action_type, task.mother_id, user.username),
+        related_alert_id=task.alert_id,
+        related_task_id=task.id,
+        now=now,
+    )
+
+    task_out = TaskOut.from_model(task, ist_date(now)).model_dump(mode="json")
+    events: List[Event] = [
+        (facility_id, "task.done", {"task": task_out, "mother_name": mother.full_name})
+    ]
+    events.extend(alert_events)
+    return events
 
 
 def apply_task_complete(
