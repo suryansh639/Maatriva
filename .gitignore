@@ -7,3 +7,7 @@ dist/
 .pytest_cache/
 .DS_Store
 .env
+backend/.secrets/
+web/dev-dist/
+web/test-results/
+web/playwright-report/

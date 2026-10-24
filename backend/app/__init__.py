@@ -1,0 +1,1 @@
+"""Maatriva backend application package."""
