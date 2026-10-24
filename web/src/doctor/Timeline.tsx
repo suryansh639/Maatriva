@@ -4,6 +4,8 @@
  * Renders `buildTimelineFromDetail` entries as an ordered list, oldest first.
  * A done task linked to an alert shows a "Loop closed" badge: an icon plus the
  * text, so it never relies on colour alone (the E2E script checks the text).
+ * Each item carries `data-kind` and `data-ref-id` (the visit/alert/task id), so the
+ * E2E can find the entry of one specific task.
  */
 import { formatIstHHMM, istDate } from '../shared/time';
 import type { MotherDetailOut } from '../shared/types';
@@ -50,6 +52,7 @@ export function Timeline({ entries, headingId = 'patient-timeline-heading' }: Ti
               key={e.id}
               className={`timeline__item timeline__item--${e.kind}${e.loopClosed ? ' timeline__item--loop-closed' : ''}`}
               data-kind={e.kind}
+              data-ref-id={e.refId}
             >
               <span className="timeline__icon" aria-hidden="true">
                 {KIND_ICONS[e.kind]}

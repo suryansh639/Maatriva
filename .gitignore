@@ -11,3 +11,8 @@ backend/.secrets/
 web/dev-dist/
 web/test-results/
 web/playwright-report/
+*.db-shm
+*.db-wal
+*.db-journal
+.agents/
+.kiro/
