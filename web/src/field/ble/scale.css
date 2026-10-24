@@ -1,0 +1,45 @@
+/* Scale readers (simulated and Web Bluetooth). */
+.scale-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid #4a4a4a;
+  border-radius: 8px;
+}
+.scale-panel h2,
+.scale-panel h3 {
+  margin: 0;
+  font-size: 1.1em;
+}
+.scale-panel__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+.scale-panel__check {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.scale-hex {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, 'Liberation Mono', monospace;
+  font-size: 0.9em;
+  word-break: break-all;
+  background: #f2f2f2;
+  color: #1a1a1a;
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+}
+.scale-kg {
+  font-size: 1.3em;
+  font-weight: 700;
+}
+.scale-readings {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+.scale-readings li {
+  margin-bottom: 0.5rem;
+}

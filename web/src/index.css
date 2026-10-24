@@ -1,0 +1,204 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Noto Sans Devanagari',
+    sans-serif;
+  line-height: 1.5;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+
+/* Visible keyboard focus on every focusable element (Req 38.1). */
+:focus-visible {
+  outline: 3px solid #1a4fd6;
+  outline-offset: 2px;
+}
+
+/* Field area: 18 px base font and 48x48 px minimum touch targets (Req 29.2). */
+.field-area {
+  font-size: 18px;
+}
+
+.field-area button,
+.field-area [role='button'],
+.field-area [role='switch'],
+.field-area a,
+.field-area select,
+.field-area input:not([type='hidden']) {
+  min-height: 48px;
+  min-width: 48px;
+  font-size: inherit;
+}
+
+/* Visually hidden content that remains available to screen readers. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ------------------------------------------------------------------ shell */
+.staff-area,
+.placeholder-page {
+  padding: 1rem;
+}
+.page-loading {
+  padding: 1rem;
+}
+.btn {
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  border: 2px solid #1a1a1a;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #1a1a1a;
+  font: inherit;
+  cursor: pointer;
+}
+.btn--primary {
+  background: #7a1f5c;
+  border-color: #7a1f5c;
+  color: #ffffff;
+}
+.btn:disabled {
+  background: #e8e8e8;
+  border-color: #6b6b6b;
+  color: #4a4a4a;
+  cursor: not-allowed;
+}
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+.form-field input,
+.form-field select,
+.form-field textarea {
+  min-height: 48px;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #4a4a4a;
+  border-radius: 6px;
+  font: inherit;
+}
+.form-error {
+  margin: 0 0 0.75rem;
+  color: #a50e0e;
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ login */
+.login-page {
+  max-width: 26rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  font-size: 18px;
+}
+.login-page__brand {
+  margin: 0;
+  color: #7a1f5c;
+}
+.login-page__note {
+  margin-top: 0.25rem;
+  color: #4a4a4a;
+}
+.login-form .btn {
+  width: 100%;
+  min-height: 48px;
+}
+.login-form__note {
+  margin: 0 0 0.75rem;
+  color: #4a4a4a;
+}
+.login-form__resume {
+  margin-top: 1rem;
+  text-align: center;
+}
+.login-form__resume a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 0.5rem;
+}
+
+/* ------------------------------------------------------------------ risk chip (Req 38.2) */
+.risk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.15em 0.6em;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.risk-chip__icon {
+  font-size: 0.85em;
+}
+
+/* ------------------------------------------------------------------ toasts (Req 19.8) */
+.toast-region {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: min(26rem, calc(100vw - 2rem));
+}
+.toast {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #1a1a1a;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.toast--danger {
+  border-left: 8px solid #ff6b6b;
+}
+.toast__text {
+  display: flex;
+  flex-direction: column;
+}
+.toast__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.toast__actions button {
+  min-height: 44px;
+  padding: 0.25rem 0.75rem;
+  border: 2px solid #ffffff;
+  border-radius: 6px;
+  background: transparent;
+  color: #ffffff;
+  font: inherit;
+  cursor: pointer;
+}
+.toast__actions .toast__action {
+  background: #ffffff;
+  color: #1a1a1a;
+}
+.toast :focus-visible {
+  outline-color: #8fb3ff;
+}

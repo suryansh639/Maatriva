@@ -1,0 +1,157 @@
+/*
+ * New visit: numeric keypad, mother confirmation and picker (Req 29.2, 30.1–30.5, 38.1–38.3).
+ * Text/background pairs are >= 4.5:1; touch targets are >= 48x48 px.
+ */
+
+/* ------------------------------------------------------------------ keypad */
+.keypad {
+  margin-bottom: 1rem;
+}
+.keypad__input {
+  font-size: 1.4em;
+  max-width: 10rem;
+}
+.keypad__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(64px, 1fr));
+  gap: 0.5rem;
+  max-width: 18rem;
+}
+.keypad__key {
+  min-height: 56px;
+  font-size: 1.3em;
+  font-weight: 700;
+}
+.keypad__key--wide {
+  grid-column: 1 / -1;
+  font-size: 1em;
+}
+
+/* ------------------------------------------------------------------ full-screen dialogs */
+.fullscreen-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow-y: auto;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 18px;
+}
+.fullscreen-dialog__body {
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 1rem;
+}
+.fullscreen-dialog__title {
+  margin: 0.5rem 0 0.75rem;
+  font-size: 1.4em;
+}
+.fullscreen-dialog__title:focus {
+  outline: 3px solid #1a4fd6;
+  outline-offset: 3px;
+}
+.fullscreen-dialog button {
+  min-height: 48px;
+  min-width: 48px;
+}
+.mother-confirm__card {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 2px solid #4a4a4a;
+  border-radius: 8px;
+}
+.mother-confirm__card p {
+  margin: 0 0 0.25rem;
+}
+.mother-confirm__avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #7a1f5c;
+  color: #ffffff;
+  font-size: 1.6em;
+  font-weight: 700;
+}
+.mother-confirm__name {
+  font-size: 1.3em;
+  font-weight: 700;
+}
+.mother-confirm__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.btn--large {
+  min-height: 64px;
+  font-size: 1.15em;
+  font-weight: 700;
+}
+.mother-picker__list {
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+.mother-picker__list li {
+  margin-bottom: 0.5rem;
+}
+.mother-picker__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+}
+.mother-picker__name {
+  font-weight: 700;
+}
+.mother-picker__meta {
+  color: #4a4a4a;
+  font-size: 0.9em;
+}
+
+/* ------------------------------------------------------------------ new visit form */
+.new-visit form {
+  max-width: 32rem;
+}
+.new-visit__notice {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border-left: 6px solid #6b4e00;
+  background: #fff6db;
+  color: #4d3800;
+}
+.new-visit__notice p {
+  margin: 0 0 0.5rem;
+}
+.new-visit__bp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+}
+.new-visit__bp .form-field {
+  flex: 1 1 8rem;
+}
+.new-visit__radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #c8c8c8;
+  border-radius: 8px;
+}
+.new-visit__radios legend {
+  padding: 0 0.25rem;
+  font-weight: 700;
+}
+.new-visit textarea {
+  min-height: 6rem;
+  resize: vertical;
+}

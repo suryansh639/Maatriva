@@ -1,0 +1,246 @@
+/*
+ * Field layout (Req 29.1, 29.2, 38.1–38.3). Mobile first: a wrapping header, the
+ * screen, and a fixed bottom navigation. Every control is at least 48x48 px (the
+ * `.field-area` rules in index.css) and every text/background pair is >= 4.5:1.
+ */
+.field-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: #ffffff;
+  color: #1a1a1a;
+}
+
+/* ------------------------------------------------------------------ header */
+.field-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #7a1f5c;
+  color: #ffffff;
+}
+.field-header__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.field-header__brand {
+  flex: 1 1 auto;
+  font-size: 1.25em;
+  font-weight: 700;
+}
+.field-header :focus-visible {
+  outline-color: #ffffff;
+}
+
+.field-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  padding: 0.25rem 0.75rem;
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+  background: transparent;
+  color: #ffffff;
+  font: inherit;
+  cursor: pointer;
+}
+.field-btn:disabled {
+  border-color: #d8b9cd;
+  color: #f0e1ea;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------------ sync badge */
+.sync-badge-region {
+  display: inline-flex;
+}
+.sync-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.25rem 0.75rem;
+  border: 2px solid;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+.sync-badge__icon {
+  font-size: 1.1em;
+}
+
+/* ------------------------------------------------------------------ simulate-offline switch */
+.field-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.25rem 0.75rem;
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+  background: transparent;
+  color: #ffffff;
+  font: inherit;
+  cursor: pointer;
+}
+.field-switch__track {
+  position: relative;
+  display: inline-block;
+  width: 2.6em;
+  height: 1.4em;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: #4a4a4a;
+  flex: none;
+}
+.field-switch__thumb {
+  position: absolute;
+  top: 50%;
+  left: 0.15em;
+  width: 1em;
+  height: 1em;
+  border-radius: 50%;
+  background: #ffffff;
+  transform: translateY(-50%);
+  transition: left 0.15s ease;
+}
+.field-switch--on .field-switch__track {
+  background: #ffd166;
+}
+.field-switch--on .field-switch__thumb {
+  left: calc(100% - 1.15em);
+  background: #3b2a00;
+}
+@media (prefers-reduced-motion: reduce) {
+  .field-switch__thumb {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ language toggle */
+.lang-toggle {
+  display: inline-flex;
+  border: 2px solid #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.lang-toggle__btn {
+  padding: 0.25rem 0.75rem;
+  border: 0;
+  background: transparent;
+  color: #ffffff;
+  font: inherit;
+  cursor: pointer;
+}
+.lang-toggle__btn--active {
+  background: #ffffff;
+  color: #7a1f5c;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------------ main + bottom nav */
+.field-main {
+  flex: 1 1 auto;
+  padding: 0.75rem 0.75rem calc(5rem + env(safe-area-inset-bottom, 0px));
+}
+
+.field-nav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  border-top: 2px solid #7a1f5c;
+  background: #ffffff;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.field-nav__link {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  padding: 0.25rem;
+  color: #1a1a1a;
+  text-decoration: none;
+  font-size: 0.9em;
+}
+.field-nav__link--active {
+  color: #7a1f5c;
+  font-weight: 700;
+  box-shadow: inset 0 4px 0 #7a1f5c;
+}
+.field-nav__icon {
+  font-size: 1.3em;
+  line-height: 1;
+}
+.field-nav__count {
+  position: absolute;
+  top: 0.2rem;
+  right: calc(50% - 2.2em);
+  min-width: 1.5em;
+  padding: 0 0.35em;
+  border-radius: 999px;
+  background: #a50e0e;
+  color: #ffffff;
+  font-size: 0.8em;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------------ screens */
+.field-screen h1 {
+  margin: 0.25rem 0 0.75rem;
+  font-size: 1.4em;
+}
+.sync-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border: 2px solid #4a4a4a;
+  border-radius: 8px;
+}
+.sync-summary p {
+  margin: 0;
+}
+.sync-summary .btn {
+  align-self: flex-start;
+  min-height: 48px;
+}
+.sync-errors__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sync-errors__item {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  border: 2px solid #a50e0e;
+  border-radius: 8px;
+}
+.sync-errors__item p {
+  margin: 0 0 0.25rem;
+}
+.sync-errors__code {
+  font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+.sync-errors__when {
+  color: #4a4a4a;
+}
+.sync-errors__item .btn {
+  min-height: 48px;
+}

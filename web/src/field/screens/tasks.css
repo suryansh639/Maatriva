@@ -1,0 +1,140 @@
+/*
+ * Tasks inbox (Req 31, 29.2, 38.2–38.3). Every state has an icon and a word, not
+ * colour alone; text/background pairs are >= 4.5:1.
+ */
+.tasks-inbox__heading {
+  margin: 0.5rem 0;
+  font-size: 1.15em;
+}
+.tasks-inbox__empty {
+  color: #4a4a4a;
+}
+.tasks-inbox__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.task-card {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  border: 2px solid #4a4a4a;
+  border-radius: 8px;
+  background: #ffffff;
+}
+.task-card--overdue {
+  border-color: #a50e0e;
+  border-left-width: 8px;
+}
+.task-card--done,
+.task-card--cancelled {
+  border-color: #6b6b6b;
+  background: #f5f5f5;
+}
+.task-card__title {
+  margin: 0 0 0.35rem;
+  font-size: 1.1em;
+}
+.task-card p {
+  margin: 0 0 0.35rem;
+}
+.task-card__instructions {
+  white-space: pre-wrap;
+}
+.task-card__meta {
+  color: #333333;
+}
+.task-card__mother {
+  display: inline-flex;
+  align-items: center;
+  color: #7a1f5c;
+  font-weight: 700;
+}
+.task-card__note {
+  font-style: italic;
+}
+
+.task-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+.task-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.9em;
+  font-weight: 700;
+}
+.task-tag--overdue {
+  background: #a50e0e;
+  color: #ffffff;
+}
+.task-tag--cancelled {
+  background: #4a4a4a;
+  color: #ffffff;
+}
+.task-tag--done {
+  background: #1b6e3a;
+  color: #ffffff;
+}
+.task-tag--pending {
+  background: #ffd166;
+  color: #3b2a00;
+}
+
+.task-card__action {
+  margin-top: 0.35rem;
+  min-height: 48px;
+}
+.task-card__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+.task-card__textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 4.5em;
+  padding: 0.5rem;
+  border: 2px solid #4a4a4a;
+  border-radius: 8px;
+  font: inherit;
+}
+.task-card__counter {
+  align-self: flex-end;
+  color: #4a4a4a;
+  font-size: 0.85em;
+}
+.task-card__error {
+  color: #a50e0e;
+  font-weight: 700;
+}
+.task-card__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.task-card__buttons .btn {
+  min-height: 48px;
+}
+
+.tasks-inbox__done {
+  margin-top: 1rem;
+}
+.tasks-inbox__done > summary {
+  display: list-item;
+  min-height: 48px;
+  padding: 0.6rem 0.75rem;
+  box-sizing: border-box;
+  border: 2px solid #4a4a4a;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.tasks-inbox__done[open] > summary {
+  margin-bottom: 0.75rem;
+}
